@@ -22,6 +22,10 @@ def cell_timestep(q: State) -> float:
         inv_dt = max(inv_dt, cmax/D[i])
     return inv_dt
 
-def timestep(grid: np.ndarray) -> float:
-    all_inv_dt = cell_timestep(grid)
+def timestep(Q: np.ndarray) -> float:
+    all_inv_dt = 0.0
+    for i in range(params.Nx):
+        for j in range(params.Ny):
+            q = Q[i, j]
+            all_inv_dt = max(cell_timestep(q), all_inv_dt)
     return params.cfl / np.max(all_inv_dt)
