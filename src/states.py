@@ -1,11 +1,12 @@
 from dataclasses import dataclass
+from typing import Self
 import params
 import numpy as np
 
 @dataclass
 class State:
     """
-    Represents the state of the Magnetohydrodynamics system, augmented with the \Psi field.
+    Represents the state of the Magnetohydrodynamics system, augmented with the psi field.
     """
     r: float
     u: float
@@ -17,7 +18,7 @@ class State:
     bz: float
     psi: float
     
-    def __add__(self, other: 'State') -> 'State':
+    def __add__(self, other: Self) -> 'State':
         return State(
             self.r + other.r,
             self.u + other.u,
@@ -30,7 +31,7 @@ class State:
             self.psi + other.psi
         )
     
-    def __sub__(self, other: 'State') -> 'State':
+    def __sub__(self, other: Self) -> 'State':
         return State(
             self.r - other.r,
             self.u - other.u,
@@ -43,7 +44,8 @@ class State:
             self.psi - other.psi
         )
     
-    def __mul__(self, scalar: float|'State') -> 'State':
+    # TODO : interface pour chacun des deux types
+    def __mul__(self, scalar: float|Self) -> 'State':
         if isinstance(scalar, State):
             return State(
                 self.r * scalar.r,
@@ -188,3 +190,19 @@ def swap_components(q: State, idir: int) -> State:
             bz=q.bz,
             psi=q.psi
         )
+
+def compute_hydro_flux(q: State) -> State:
+    Ek: float = 0.5 * q.r * (q.u * q.u + q.v * q.v)
+    E_int: float = (q.p / (params.gamma-1.0) + Ek)
+
+    return State(
+      r = q.r*q.u,
+      u = q.r*q.u*q.u + q.p,
+      v = q.r*q.u*q.v,
+      w = 0,
+      p = (q.p + E_int) * q.u,
+      bx = 0,
+      by = 0,
+      bz = 0,
+      psi = 0
+    )

@@ -13,6 +13,7 @@ def computeGlobalDivSpeed(Q: np.ndarray) -> float:
     for i in range(params.Nx):
         for j in range(params.Ny):
             q = Q[i, j]
+    
             
 def reconstruct(Q: np.ndarray, i: int, j: int) -> np.ndarray[State]:
     q = Q[i, j]
@@ -25,6 +26,7 @@ def reconstruct(Q: np.ndarray, i: int, j: int) -> np.ndarray[State]:
             raise NotImplementedError("Piecewise Parabolic Method (PPM) reconstruction is not implemented.")
     raise ValueError(f"Unknown reconstruction method: {params.reconstruction}")
 
+
 def computeFluxesAndUpdate(Q: np.ndarray, U: np.ndarray, dt: float) -> np.ndarray[State]:
     """
     Compute the fluxes for the given state array Q using the Riemann solver.
@@ -35,7 +37,7 @@ def computeFluxesAndUpdate(Q: np.ndarray, U: np.ndarray, dt: float) -> np.ndarra
     Returns:
     np.ndarray: The computed fluxes.
     """
-    def update_along_dir(i, j, idir: int) -> State:
+    def update_along_dir(i, j, idir: int) -> None:
         """
         Update the state along a specified direction.
         
