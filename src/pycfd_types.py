@@ -22,3 +22,8 @@ class VarIndex(IntEnum):
     IPSI = 8
 
 # VarIndex.IP._add_alias_("IE")
+
+class IDir(IntEnum):
+    IX = 0
+    IY = 1
+    IZ = 2    

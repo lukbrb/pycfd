@@ -1,9 +1,12 @@
 """Module containing all Riemann solvers."""
 import numpy as np
-from states import State
+from pycfd_types import VarIndex, real_t
+from states import State, primToCons
 from physics import speed_of_sound
+import params
 
-gamma = 5/3
+IR, IU, IV, IW, IP, IE, IBX, IBY, IBZ, IPSI = VarIndex.__members__
+
 
 def logMean(a: float, b: float) -> float:
     """
@@ -29,7 +32,7 @@ def FluxKepec(qL: State, qR: State, ch: float) -> State:
     f7 = 1/betaAvg * ((qL.u*betaL + qR.u*betaR/2)*qAvg.by - (qL.v*betaL + qR.v*betaR/2)*qAvg.bx)
     f8 = 1/betaAvg * ((qL.u*betaL + qR.u*betaR/2)*qAvg.bz - (qL.w*betaL + qR.w*betaR/2)*qAvg.bx)
     f9 = ch * qAvg.bx
-    f5 = f1 * (1/(2*betaLn*(gamma - 1)) - 0.5 * (qL.u*qR.u + qL.v*qR.v + qL.w*qR.w)) + \
+    f5 = f1 * (1/(2*betaLn*(params.gamma - 1)) - 0.5 * (qL.u*qR.u + qL.v*qR.v + qL.w*qR.w)) + \
          f2 * qAvg.u + \
          f3 * qAvg.v + \
          f4 * qAvg.w + \
@@ -56,10 +59,22 @@ def IdealGLM(qL: State, qR: State) -> State:
     flux = FluxKepec(qL, qR)
     return flux
 
+def computeFlux(q: State) -> State:
+    Ek: real_t = 0.5 * q[IR] * (q[IU] * q[IU] + q[IV] * q[IV]);
+    E: real_t = (q[IP] / (params.gamma0-1.0) + Ek);
 
-def riemann_hll(qL: State, qR: State) -> State:
-    aL: float = speedOfSound(qL)
-    aR: float = speedOfSound(qR)
+    fout = State();
+
+    fout[IR] = q[IR]*q[IU];
+    fout[IU] = q[IR]*q[IU]*q[IU] + q[IP];
+    fout[IV] = q[IR]*q[IU]*q[IV];
+    fout[IE] = (q[IP] + E) * q[IU];
+    return fout;
+
+
+def hll(qL: State, qR: State) -> State:
+    aL: float = speed_of_sound(qL)
+    aR: float = speed_of_sound(qR)
 
   # Davis' estimates for the signal speed
     sminL: float = qL[IU] - aL
@@ -67,30 +82,29 @@ def riemann_hll(qL: State, qR: State) -> State:
     sminR: float = qR[IU] - aR
     smaxR: float = qR[IU] + aR
 
-    SL: float = min(sminL, sminR)
-    SR: float = max(smaxL, smaxR)
+    SL: real_t = min(sminL, sminR)
+    SR: real_t = max(smaxL, smaxR)
 
+    FL: State = computeFlux(qL, params);
+    FR: State = computeFlux(qR, params);
 
+    if (SL >= 0.0):
+      flux = FL;
+      pout = qL[IP];
+    elif (SR <= 0.0):
+      flux = FR
+      pout = qR[IP]
+    else:
+      uL: State = primToCons(qL, params);
+      uR: State = primToCons(qR, params);
+      # pout: real_t = 0.5 * (qL[IP] + qR[IP]);
+      flux: State = (SR*FL - SL*FR + SL*SR*(uR-uL)) / (SR-SL);
+    return flux
 
+# Calling the right Riemann solver
+def riemann(qL: State, qR: State) -> State:
+  match (params.riemann_solver):
+     case "HLL": flux = hll(qL, qR)
+    # case "HLLC": hllc(qL, qR, flux, pout, params); break;
+  return flux
 
-    return fout;
-  };
-
-  State FL = computeFlux(qL, params);
-  State FR = computeFlux(qR, params);
-
-  if (SL >= 0.0) {
-    flux = FL;
-    pout = qL[IP];
-  }
-  else if (SR <= 0.0) {
-    flux = FR;
-    pout = qR[IP];
-  }
-  else {
-    State uL = primToCons(qL, params);
-    State uR = primToCons(qR, params);
-    pout = 0.5 * (qL[IP] + qR[IP]);
-    flux = (SR*FL - SL*FR + SL*SR*(uR-uL)) / (SR-SL);
-  } 
-}

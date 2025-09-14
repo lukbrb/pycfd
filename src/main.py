@@ -2,6 +2,10 @@ import numpy as np
 import params
 from pycfd_types import Array, real_t
 from problems import init_problem
+from states import primToCons, consToPrim
+from timestep import compute_dt
+from update import update
+
 
 def main() -> int:
 
@@ -44,14 +48,13 @@ def main() -> int:
     # else
     init_problem(Q, params.problem_name)
     print(Q)
-    exit(1)
     primToCons(Q, U)
 
     dt: real_t = 0.0
     next_log: int = 0
-    while (t + device_params.epsilon < params.tend):
-        save_needed: bool = (t + device_params.epsilon > next_save)
-        dt = timestep.computeDt(Q, (params.save_freq if ite == 0 else next_save-t), t, next_log == 0)
+    while (t + params.epsilon < params.tend):
+        save_needed: bool = (t + params.epsilon > next_save)
+        dt = compute_dt(Q, (params.save_freq if ite == 0 else next_save-t), t, next_log == 0)
         if (next_log == 0):
             next_log = params.log_frequency
         else:
@@ -63,9 +66,9 @@ def main() -> int:
             # ioManager.saveSolution(Q, ite, t)
             next_save += params.save_freq
 
-        update.update(Q, U, dt)
+        update(Q, U, dt)
         consToPrim(U, Q, params)
-        checkNegatives(Q, params)
+        # checkNegatives(Q, params)
 
     t += dt
 
