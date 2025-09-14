@@ -1,7 +1,12 @@
 """Paramètres de la simulation."""
-
-Nx = 128
-Ny = 128
+problem_name = "test_ini"
+MHD = False
+Nx = 16
+Ny = 16
+Nghosts = 2
+Ntx = Nx + Nghosts
+Nty = Ny + Nghosts
+Nfields = 9 if MHD else 5
 gamma = 5/3
 cfl = 0.5
 xmax = 1.0

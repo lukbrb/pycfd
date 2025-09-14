@@ -1,6 +1,7 @@
 """Module containing all Riemann solvers."""
 import numpy as np
 from states import State
+from physics import speed_of_sound
 
 gamma = 5/3
 
@@ -54,3 +55,42 @@ def FluxKepec(qL: State, qR: State, ch: float) -> State:
 def IdealGLM(qL: State, qR: State) -> State:
     flux = FluxKepec(qL, qR)
     return flux
+
+
+def riemann_hll(qL: State, qR: State) -> State:
+    aL: float = speedOfSound(qL)
+    aR: float = speedOfSound(qR)
+
+  # Davis' estimates for the signal speed
+    sminL: float = qL[IU] - aL
+    smaxL: float = qL[IU] + aL
+    sminR: float = qR[IU] - aR
+    smaxR: float = qR[IU] + aR
+
+    SL: float = min(sminL, sminR)
+    SR: float = max(smaxL, smaxR)
+
+
+
+
+    return fout;
+  };
+
+  State FL = computeFlux(qL, params);
+  State FR = computeFlux(qR, params);
+
+  if (SL >= 0.0) {
+    flux = FL;
+    pout = qL[IP];
+  }
+  else if (SR <= 0.0) {
+    flux = FR;
+    pout = qR[IP];
+  }
+  else {
+    State uL = primToCons(qL, params);
+    State uR = primToCons(qR, params);
+    pout = 0.5 * (qL[IP] + qR[IP]);
+    flux = (SR*FL - SL*FR + SL*SR*(uR-uL)) / (SR-SL);
+  } 
+}

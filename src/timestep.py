@@ -17,7 +17,7 @@ def cell_timestep(q: State) -> float:
     D = [dx, dy]
     for i in range(2):
         cf2 = gr + b2 + np.sqrt(cf1**2 + 4 * gr * Bt2[i])
-        cf = np.sqr(0.5 * cf2 / q.r)
+        cf = np.sqrt(0.5 * cf2 / q.r)
         cmax = np.max(abs(V[i] - cf), abs(V[i] + cf))
         inv_dt = max(inv_dt, cmax/D[i])
     return inv_dt
