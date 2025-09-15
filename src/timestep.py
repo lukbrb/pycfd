@@ -2,33 +2,34 @@ import numpy as np
 from states import State, get_state_from_array
 import params
 from physics import speed_of_sound
-from pycfd_types import Array, real_t, VarIndex
+from pycfd_types import Array, real_t
+from varindexes import IR, IU, IV, IBX, IBY, IBZ
+# IR, IU, IV, IW, IP, IE, IBX, IBY, IBZ, IPSI = VarIndex.__members__
 
-IR, IU, IV, IW, IP, IE, IBX, IBY, IBZ, IPSI = VarIndex.__members__
-
-def cell_timestep(q: State) -> float:
-    dx = params.dx
-    dy = params.dy
+def cell_timestep(q: State) -> real_t:
     cs = speed_of_sound(q)
-    inv_dt = (cs + abs(q[IU])) / dx + (cs + abs(q[IV])) / dy
-    gr = cs**2 * q[IR]
-    Bt2 = [q[IBY]**2 + q[IBZ]**2, q[IBX]**2 + q[IBZ]**2, q[IBX]**2 + q[IBY]**2]
-    b2 = q[IBX]**2 + q[IBY]**2 + q[IBZ]**2
-    cf1 = gr - b2
-    V = [q[IU], q[IV], q[IW]]
-    D = [dx, dy]
-    for i in range(2):
-        cf2 = gr + b2 + np.sqrt(cf1**2 + 4 * gr * Bt2[i])
-        cf = np.sqrt(0.5 * cf2 / q[IR])
-        cmax = np.max(abs(V[i] - cf), abs(V[i] + cf))
-        inv_dt = max(inv_dt, cmax/D[i])
-    return inv_dt
+    inv_dt_hyp_loc = (cs + abs(q[IU]))/params.dx + (cs + abs(q[IV]))/params.dy
+    #ifdef MHD
+    if params.MHD:
+        B2: real_t = q[IBX]*q[IBX] + q[IBY]*q[IBY] + q[IBZ]*q[IBZ]
+        ca2: real_t = B2 / q[IR]
+        cap2x: real_t = q[IBX]*q[IBX]/q[IR]
+        cap2y: real_t = q[IBY]*q[IBY]/q[IR]
+        # cap2z = q[IBZ]*q[IBZ]/q[IR]
+
+        cf_x: real_t = np.sqrt(0.5*(cs**2+ca2)+0.5*np.sqrt((cs**2+ca2)*(cs**2+ca2)-4.0*cs**2*cap2x))
+        cf_y: real_t = np.sqrt(0.5*(cs**2+ca2)+0.5*np.sqrt((cs**2+ca2)*(cs**2+ca2)-4.0*cs**2*cap2y))
+        # real_t c_jz = sqrt(0.5*(c02+ca2)+0.5*sqrt((c02+ca2)*(c02+ca2)-4.*c02*cap2z))
+        inv_dt_hyp_loc = max((cf_x + abs(q[IU])) / params.dx + (cf_y + abs(q[IV])) / params.dy, inv_dt_hyp_loc)
+    return inv_dt_hyp_loc
 
 
-def compute_dt(Q: Array) -> real_t:
+def compute_dt(Q: Array, t: real_t, verbose: bool) -> real_t:
     all_inv_dt = 0.0
-    for i in range(params.Ntx):
-        for j in range(params.Nty):
+    for i in range(params.Nx):
+        for j in range(params.Ny):
             q_loc = get_state_from_array(Q, i, j)
             all_inv_dt = max(cell_timestep(q_loc), all_inv_dt)
-    return params.cfl / np.max(all_inv_dt)
+    if verbose: 
+      print(f"Computing dts at ({t=}): dt_hyp={params.CFL/all_inv_dt}")
+    return params.CFL / np.max(all_inv_dt)

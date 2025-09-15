@@ -5,6 +5,7 @@ from problems import init_problem
 from states import primToCons, consToPrim
 from timestep import compute_dt
 from update import update
+from iomanager import save_solution
 
 
 def main() -> int:
@@ -23,8 +24,8 @@ def main() -> int:
     # auto params = readInifile(argv[1]);
     # auto device_params = params.device_params;
 
-    U: Array = np.empty((params.Ntx, params.Nty, params.Nfields), dtype=real_t)
-    Q: Array = np.empty((params.Ntx, params.Nty, params.Nfields), dtype=real_t)
+    U: Array = np.zeros((params.Ntx, params.Nty, params.Nfields), dtype=real_t)
+    Q: Array = np.zeros((params.Ntx, params.Nty, params.Nfields), dtype=real_t)
 
     # // Misc vars for iteration
     t: real_t = 0.0
@@ -47,14 +48,13 @@ def main() -> int:
     # }
     # else
     init_problem(Q, params.problem_name)
-    print(Q)
     primToCons(Q, U)
 
     dt: real_t = 0.0
     next_log: int = 0
     while (t + params.epsilon < params.tend):
         save_needed: bool = (t + params.epsilon > next_save)
-        dt = compute_dt(Q, (params.save_freq if ite == 0 else next_save-t), t, next_log == 0)
+        dt = compute_dt(Q, t, next_log == 0)
         if (next_log == 0):
             next_log = params.log_frequency
         else:
@@ -63,18 +63,18 @@ def main() -> int:
         if (save_needed):
             print(f" - Saving at time {t:.3f}")
             ite += 1
-            # ioManager.saveSolution(Q, ite, t)
+            save_solution(Q, ite, t)
             next_save += params.save_freq
 
         update(Q, U, dt)
-        consToPrim(U, Q, params)
+        consToPrim(U, Q)
         # checkNegatives(Q, params)
 
     t += dt
 
     print(f"Time at end is {t:.3f}")
     ite += 1
-    # ioManager.saveSolution(Q, ite, t)
+    save_solution(Q, ite, t)
 
     print("    █     ▀██  ▀██         ▀██                              ▄█▄ ")
     print("   ███     ██   ██       ▄▄ ██    ▄▄▄   ▄▄ ▄▄▄     ▄▄▄▄     ███ ")

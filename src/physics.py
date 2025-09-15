@@ -2,6 +2,7 @@
 import numpy as np
 from states import State
 import params
+from varindexes import IP, IR
 
 def speed_of_sound(q: State) -> float:
     """
@@ -13,6 +14,7 @@ def speed_of_sound(q: State) -> float:
     Returns:
     float: The speed of sound.
     """
-    return np.sqrt(params.gamma * q.p / q.r)
+    print(q)
+    return np.sqrt(params.gamma * q[IP] / q[IR])
 
 

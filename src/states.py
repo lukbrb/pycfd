@@ -1,16 +1,16 @@
-from functools import singledispatch
-from typing import Sequence, Union, overload
+from typing import Union
 import numpy as np
 import params
-from pycfd_types import real_t, VarIndex, Array, IDir
+from pycfd_types import real_t, Array, IDir
+from varindexes import IR, IU, IV, IW, IP, IE, IBX, IBY, IBZ, IPSI
 
-IR, IU, IV, IW, IP, IE, IBX, IBY, IBZ, IPSI = VarIndex.__members__
+# IR, IU, IV, IW, IP, IE, IBX, IBY, IBZ, IPSI = VarIndex.__members__
 
 class State(np.ndarray):
     """Classe de base pour PrimState et ConsState."""
 
-    def __new__(cls, data: Union[Sequence[real_t], None] = None) -> 'State':
-        arr = np.array(data, dtype=real_t) if data else np.zeros(params.Nfields)
+    def __new__(cls, data: Union[Array, None] = None) -> 'State':
+        arr = np.zeros(params.Nfields) if data is None else np.array(data, dtype=real_t) 
         if arr.shape != (params.Nfields,):
             raise ValueError(f"Expected {params.Nfields} fields, got {arr.shape}")
         # vue ndarray avec type State
@@ -20,10 +20,111 @@ class State(np.ndarray):
         # appelé à chaque fois qu’un nouvel ndarray-compat est créé
         if obj is None:
             return
+    
+        # --- Opérations arithmétiques binaires (u + v, u - v, etc.) ---
+    def __add__(self, other):
+        result = super().__add__(other)
+        return result.view(State)
+
+    def __sub__(self, other):
+        result = super().__sub__(other)
+        return result.view(State)
+
+    def __mul__(self, other):
+        result = super().__mul__(other)
+        return result.view(State)
+
+    def __truediv__(self, other):
+        result = super().__truediv__(other)
+        return result.view(State)
+
+    def __floordiv__(self, other):
+        result = super().__floordiv__(other)
+        return result.view(State)
+
+    def __pow__(self, other):
+        result = super().__pow__(other)
+        return result.view(State)
+
+    # --- Opérations arithmétiques binaires inversées (5 + u, etc.) ---
+    def __radd__(self, other):
+        return self.__add__(other)
+
+    def __rsub__(self, other):
+        return State(other) - self
+
+    def __rmul__(self, other):
+        return self.__mul__(other)
+
+    def __rtruediv__(self, other):
+        return State(other) / self
+
+    def __rfloordiv__(self, other):
+        return State(other) // self
+
+    def __rpow__(self, other):
+        return State(other) ** self
+
+    # --- Opérations arithmétiques in-place (u += v, etc.) ---
+    def __iadd__(self, other):
+        super().__iadd__(other)
+        return self
+
+    def __isub__(self, other):
+        super().__isub__(other)
+        return self
+
+    def __imul__(self, other):
+        super().__imul__(other)
+        return self
+
+    def __itruediv__(self, other):
+        super().__itruediv__(other)
+        return self
+
+    def __ifloordiv__(self, other):
+        super().__ifloordiv__(other)
+        return self
+
+    def __ipow__(self, other):
+        super().__ipow__(other)
+        return self
+
+    # --- Opérations unaires (-u, +u, abs(u), etc.) ---
+    def __neg__(self):
+        result = super().__neg__()
+        return result.view(State)
+
+    def __pos__(self):
+        result = super().__pos__()
+        return result.view(State)
+
+    def __abs__(self):
+        result = super().__abs__()
+        return result.view(State)
+
+    # --- Comparaisons (u == v, u < v, etc.) ---
+    def __eq__(self, other):
+        return super().__eq__(other)
+
+    def __lt__(self, other):
+        return super().__lt__(other)
+
+    def __le__(self, other):
+        return super().__le__(other)
+
+    def __gt__(self, other):
+        return super().__gt__(other)
+
+    def __ge__(self, other):
+        return super().__ge__(other)
+
+    def __ne__(self, other):
+        return super().__ne__(other)
 
 
 def get_state_from_array(Q: Array, i: int, j: int) -> State:
-    return Q[i, j, :]
+    return State(Q[i, j, :])
 
 
 def set_state_into_array(Q: Array, i: int, j: int, s: State) -> None:
@@ -38,8 +139,7 @@ def set_state_into_array(Q: Array, i: int, j: int, s: State) -> None:
     Q[i, j, IPSI] = s[IPSI]
 
 
-@overload
-def primToCons(q: State) -> State:
+def cell_primToCons(q: State) -> State:
     u: State = State()
     u[IR]   = q[IR]
     u[IU]   = q[IR] * q[IU]
@@ -55,8 +155,8 @@ def primToCons(q: State) -> State:
     u[IE] = q[IP]/(params.gamma - 1) + Ek + Emag + Epsi
     return u
 
-@overload
-def consToPrim(u: State) -> State:
+
+def cell_consToPrim(u: State) -> State:
     q: State = State()
     q[IR]   = u[IR]
     q[IU]   = u[IU] / u[IR]
@@ -72,31 +172,49 @@ def consToPrim(u: State) -> State:
     q[IP] = (q[IE] - Ek - Emag - Epsi) * (params.gamma -1)
     return q
 
-@overload
-def consToPrim(U: Array, Q: Array) -> Array:
+
+# Note : grid_** function should be vectorized with numpy array arithmetic
+def grid_consToPrim(U: Array, Q: Array) -> None:
     for i in range(params.Ntx):
         for j in range(params.Nty):
             u_loc = get_state_from_array(U, i, j)
-            q_loc = consToPrim(u_loc)
+            q_loc = cell_consToPrim(u_loc)
             set_state_into_array(Q, i, j, q_loc)
 
 
-@overload
-def primToCons(Q: Array, U: Array) -> Array:
+def grid_primToCons(Q: Array, U: Array) -> None:
     for i in range(params.Ntx):
         for j in range(params.Nty):
             q_loc = get_state_from_array(Q, i, j)
-            u_loc = primToCons(q_loc)
+            u_loc = cell_primToCons(q_loc)
             set_state_into_array(U, i, j, u_loc)
 
+
+def primToCons(*args):
+    if len(args) == 1:
+        return cell_primToCons(*args)
+    elif len(args) == 2:
+        return grid_primToCons(*args)
+    else:
+        raise ValueError("Incorrect number of arguments passed to the function.")
+    
+
+def consToPrim(*args):
+    if len(args) == 1:
+        return cell_consToPrim(*args)
+    elif len(args) == 2:
+        return grid_consToPrim(*args)
+    else:
+        raise ValueError("Incorrect number of arguments passed to the function.")
+    
 
 def swap_components(s: State, idir: IDir) -> State:
     if idir == IDir.IX:
         return s
     elif idir == IDir.IY:
-        return State(s[IR], s[IV], s[IU], s[IW], s[IP], s[IBY], s[IBX], s[IBZ], s[IPSI])
+        return State(np.array([s[IR], s[IV], s[IU], s[IW], s[IP], s[IBY], s[IBX], s[IBZ], s[IPSI]]))
     elif idir == IDir.IZ:
-        return State(s[IR], s[IW], s[IV], s[IU], s[IP], s[IBZ], s[IBY], s[IBX], s[IPSI])
+        return State(np.array([s[IR], s[IW], s[IV], s[IU], s[IP], s[IBZ], s[IBY], s[IBX], s[IPSI]]))
     else:
         raise ValueError("Chosen dir is not recognized.")
 
