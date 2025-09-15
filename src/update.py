@@ -94,7 +94,7 @@ def compute_fluxes_and_update(Q: Array, Unew: Array, dt: real_t) -> None:
             updateAlongDir(i, j, IDir.IX)
             updateAlongDir(i, j, IDir.IY)
 
-    Unew[i, j, IR] = max(params.smallr, Unew[i, j, IR])
+            Unew[i, j, IR] = max(params.smallr, Unew[i, j, IR])
   
 
 def euler_step(Q: Array, Unew: Array, dt: real_t) -> None:
@@ -111,19 +111,19 @@ def update(Q: Array, Unew: Array, dt: real_t) -> None:
     if params.time_stepping == "euler":
         euler_step(Q, Unew, dt)
     elif params.time_stepping == "RK2":
-        U0: Array = np.zeros((params.Ntx, params.Nty, params.Nfields))
-        Ustar: Array = np.zeros((params.Ntx, params.Nty, params.Nfields))
+        # U0: Array = np.zeros((params.Ntx, params.Nty, params.Nfields))
+        # Ustar: Array = np.zeros((params.Ntx, params.Nty, params.Nfields))
 
-    # Step 1
-    U0 = np.copy(Unew)
-    Ustar = np.copy(Unew)
-    euler_step(Q, Ustar, dt)
-    # Step 2
-    Unew = np.copy(Ustar)
-    consToPrim(Ustar, Q)
-    euler_step(Q, Unew, dt)
-    # SSP-RK2
-    for i in range(params.ibeg, params.iend):
-        for j in range(params.jbeg, params.jend):
-            for ivar in range(params.Nfields):
-                Unew[i, j, ivar] = 0.5 * (U0[i, j, ivar] + Unew[i, j, ivar])
+        # Step 1
+        U0 = np.copy(Unew)
+        Ustar = np.copy(Unew)
+        euler_step(Q, Ustar, dt)
+        # Step 2
+        Unew = np.copy(Ustar)
+        consToPrim(Ustar, Q)
+        euler_step(Q, Unew, dt)
+        # SSP-RK2
+        for i in range(params.ibeg, params.iend):
+            for j in range(params.jbeg, params.jend):
+                for ivar in range(params.Nfields):
+                    Unew[i, j, ivar] = 0.5 * (U0[i, j, ivar] + Unew[i, j, ivar])

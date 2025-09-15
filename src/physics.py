@@ -14,7 +14,6 @@ def speed_of_sound(q: State) -> float:
     Returns:
     float: The speed of sound.
     """
-    print(q)
     return np.sqrt(params.gamma * q[IP] / q[IR])
 
 
