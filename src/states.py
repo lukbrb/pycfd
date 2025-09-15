@@ -124,7 +124,17 @@ class State(np.ndarray):
 
 
 def get_state_from_array(Q: Array, i: int, j: int) -> State:
-    return State(Q[i, j, :])
+    s = State()
+    s[IR] = Q[i, j, IR]
+    s[IU] = Q[i, j, IU]
+    s[IV] = Q[i, j, IV]
+    s[IW] = Q[i, j, IW]
+    s[IP] = Q[i, j, IP]
+    s[IBX] = Q[i, j, IBX]
+    s[IBY] = Q[i, j, IBY]
+    s[IBZ] = Q[i, j, IBZ] 
+    s[IPSI] = Q[i, j, IPSI]
+    return s
 
 
 def set_state_into_array(Q: Array, i: int, j: int, s: State) -> None:
@@ -175,19 +185,17 @@ def cell_consToPrim(u: State) -> State:
 
 # Note : grid_** function should be vectorized with numpy array arithmetic
 def grid_consToPrim(U: Array, Q: Array) -> None:
-    for i in range(params.Ntx):
-        for j in range(params.Nty):
-            u_loc = get_state_from_array(U, i, j)
-            q_loc = cell_consToPrim(u_loc)
-            set_state_into_array(Q, i, j, q_loc)
+    for (i, j) in params.range_dom:
+        u_loc = get_state_from_array(U, i, j)
+        q_loc = cell_consToPrim(u_loc)
+        set_state_into_array(Q, i, j, q_loc)
 
 
 def grid_primToCons(Q: Array, U: Array) -> None:
-    for i in range(params.Ntx):
-        for j in range(params.Nty):
-            q_loc = get_state_from_array(Q, i, j)
-            u_loc = cell_primToCons(q_loc)
-            set_state_into_array(U, i, j, u_loc)
+    for (i, j) in params.range_dom:
+        q_loc = get_state_from_array(Q, i, j)
+        u_loc = cell_primToCons(q_loc)
+        set_state_into_array(U, i, j, u_loc)
 
 
 def primToCons(*args):
@@ -217,10 +225,3 @@ def swap_components(s: State, idir: IDir) -> State:
         return State(np.array([s[IR], s[IW], s[IV], s[IU], s[IP], s[IBZ], s[IBY], s[IBX], s[IPSI]]))
     else:
         raise ValueError("Chosen dir is not recognized.")
-
-
-# class PrimState(State):
-#     pass
-
-# class ConsState(State):
-#     pass

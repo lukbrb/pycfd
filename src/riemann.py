@@ -76,7 +76,7 @@ def hll(qL: State, qR: State) -> State:
     aL: float = speed_of_sound(qL)
     aR: float = speed_of_sound(qR)
 
-  # Davis' estimates for the signal speed
+    # Davis' estimates for the signal speed
     sminL: float = qL[IU] - aL
     smaxL: float = qL[IU] + aL
     sminR: float = qR[IU] - aR
@@ -89,11 +89,11 @@ def hll(qL: State, qR: State) -> State:
     FR: State = computeFlux(qR)
     flux: State
     if (SL >= 0.0):
-      flux = FL
-      # pout = qL[IP]
+        flux = FL
+    # pout = qL[IP]
     elif (SR <= 0.0):
-      flux = FR
-      # pout = qR[IP]
+        flux = FR
+    # pout = qR[IP]
     else:
         uL: State = primToCons(qL)
         uR: State = primToCons(qR)
@@ -103,9 +103,9 @@ def hll(qL: State, qR: State) -> State:
 
 # Calling the right Riemann solver
 def riemann(qL: State, qR: State) -> State:
-  match (params.riemann_solver):
-     case "HLL":
-        flux = hll(qL, qR)
+    match (params.riemann_solver):
+        case "HLL":
+            flux = hll(qL, qR)
     # case "HLLC": hllc(qL, qR, flux, pout, params); break;
-  return flux
+    return flux
 

@@ -47,16 +47,15 @@ slopesY: Array = np.zeros((params.Ntx, params.Nty, params.Nfields))
 
 def compute_slopes(Q: Array) -> None:
     # res.device_params.ibeg-1, res.device_params.jbeg-1}, {res.device_params.iend+1, res.device_params.jend+1});
-    for i in range(params.ibeg-1, params.iend+1):
-        for j in range(params.jbeg-1, params.jend+1):
-            for ivar in range(params.Nfields):
-                dL: real_t = Q[i, j, ivar]   - Q[i-1, j, ivar]
-                dR: real_t = Q[i+1, j, ivar] - Q[i, j, ivar]
-                dU: real_t = Q[i, j, ivar]   - Q[i, j-1, ivar]
-                dD: real_t = Q[i, j+1, ivar] - Q[i, j, ivar]
+    for (i, j) in params.range_slopes:
+        for ivar in range(params.Nfields):
+            dL: real_t = Q[i, j, ivar]   - Q[i-1, j, ivar]
+            dR: real_t = Q[i+1, j, ivar] - Q[i, j, ivar]
+            dU: real_t = Q[i, j, ivar]   - Q[i, j-1, ivar]
+            dD: real_t = Q[i, j+1, ivar] - Q[i, j, ivar]
 
-                slopesX[i, j, ivar] = minmod(dL, dR)
-                slopesY[i, j, ivar] = minmod(dU, dD)
+            slopesX[i, j, ivar] = minmod(dL, dR)
+            slopesY[i, j, ivar] = minmod(dU, dD)
 
 
 def compute_fluxes_and_update(Q: Array, Unew: Array, dt: real_t) -> None:
@@ -88,13 +87,11 @@ def compute_fluxes_and_update(Q: Array, Unew: Array, dt: real_t) -> None:
 
         set_state_into_array(Unew, i, j, un_loc)
     
-    for i in range(params.ibeg, params.iend):
-        for j in range(params.jbeg, params.jend):
+    for (i, j) in params.range_dom:
+        updateAlongDir(i, j, IDir.IX)
+        updateAlongDir(i, j, IDir.IY)
 
-            updateAlongDir(i, j, IDir.IX)
-            updateAlongDir(i, j, IDir.IY)
-
-            Unew[i, j, IR] = max(params.smallr, Unew[i, j, IR])
+        Unew[i, j, IR] = max(params.smallr, Unew[i, j, IR])
   
 
 def euler_step(Q: Array, Unew: Array, dt: real_t) -> None:
@@ -123,7 +120,6 @@ def update(Q: Array, Unew: Array, dt: real_t) -> None:
         consToPrim(Ustar, Q)
         euler_step(Q, Unew, dt)
         # SSP-RK2
-        for i in range(params.ibeg, params.iend):
-            for j in range(params.jbeg, params.jend):
-                for ivar in range(params.Nfields):
-                    Unew[i, j, ivar] = 0.5 * (U0[i, j, ivar] + Unew[i, j, ivar])
+        for (i, j) in params.range_dom:
+            for ivar in range(params.Nfields):
+                Unew[i, j, ivar] = 0.5 * (U0[i, j, ivar] + Unew[i, j, ivar])

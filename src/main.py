@@ -6,7 +6,7 @@ from states import primToCons, consToPrim
 from timestep import compute_dt
 from update import update
 from iomanager import save_solution
-
+from boundaries import fillBoundaries
 
 def main() -> int:
 
@@ -47,7 +47,11 @@ def main() -> int:
     #   ite++;
     # }
     # else
+
     init_problem(Q, params.problem_name)
+    print(Q)
+    
+    fillBoundaries(Q)
     primToCons(Q, U)
 
     dt: real_t = 0.0

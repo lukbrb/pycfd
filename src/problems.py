@@ -32,7 +32,7 @@ def init_sod_x(Q: Array, i: int, j: int) -> None:
     else:
         Q[i, j, IR] = 0.125
         Q[i, j, IP] = 0.1
-        Q[i, j, IU] = 0.0
+        Q[i, j, IU] = 5
 
 
 def init_orszag_tang(Q: Array, i: int, j: int) -> None:
@@ -77,7 +77,6 @@ def init_problem(Q: Array, problem_name: str) -> None:
         problem_name (str): Key to the function to call to fill each cell. 
     """
     assert problem_name in problems, "The chosen problem is not referenced."
-    for i in range(params.Ntx):
-        for j in range(params.Nty):
-            problems[problem_name](Q, i, j)
+    for (i, j) in params.range_dom:
+        problems[problem_name](Q, i, j)
 
