@@ -179,7 +179,7 @@ def cell_consToPrim(u: State) -> State:
     Ek = q[IR] * 0.5 * (q[IU]**2 + q[IV]**2 + q[IW]**2)
     Emag = 0.5 * (q[IBX]**2 + q[IBY]**2 + q[IBZ]**2)
     Epsi = 0.5 * q[IPSI]**2
-    q[IP] = (q[IE] - Ek - Emag - Epsi) * (params.gamma -1)
+    q[IP] = (u[IE] - Ek - Emag - Epsi) * (params.gamma -1)
     return q
 
 
