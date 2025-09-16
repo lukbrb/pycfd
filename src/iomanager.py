@@ -1,11 +1,12 @@
 """Handle the input/oyput operations"""
+
 from pathlib import Path
 from src.pycfd_types import Array, real_t
 import numpy as np
 
 
 class IOManager:
-    def __init__(self, outname: str="run", dirname: str="data/") -> None:
+    def __init__(self, outname: str = "run", dirname: str = "data/") -> None:
         self.dirname: Path = Path(dirname)
         self.outname: str = outname
 

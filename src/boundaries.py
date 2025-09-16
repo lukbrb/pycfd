@@ -12,12 +12,12 @@ def fillAbsorbing(Q: Array, iref: int, jref: int, idir: IDir) -> State:
 def fillReflecting(Q: Array, i: int, j: int, iref: int, jref: int, idir: IDir) -> State:
     if idir == IDir.IX:
         ipiv: int = params.ibeg if i < iref else params.iend
-        isym = 2*ipiv - i - 1
+        isym = 2 * ipiv - i - 1
         jsym = j
     else:
         jpiv: int = params.jbeg if j < jref else params.jend
         isym = i
-        jsym = 2*jpiv - j - 1
+        jsym = 2 * jpiv - j - 1
 
     q = get_state_from_array(Q, isym, jsym)
 
@@ -50,11 +50,11 @@ def fillBoundaries(Q: Array) -> None:
     bc_x = params.boundary_x
     bc_y = params.boundary_y
 
-    for (i, j) in params.range_xbound:
+    for i, j in params.range_xbound:
         ileft = i
-        iright    = params.iend+i
+        iright = params.iend + i
         iref_left = params.ibeg
-        iref_right = params.iend-1
+        iref_right = params.iend - 1
 
         def fillX(i: int, iref: int) -> State:
             match (bc_x):
@@ -63,18 +63,18 @@ def fillBoundaries(Q: Array) -> None:
                 case "BC_REFLECTING":
                     return fillReflecting(Q, i, j, iref, j, IDir.IX)
                 case "BC_PERIODIC":
-                      return fillPeriodic(Q, i, j, IDir.IX)
+                    return fillPeriodic(Q, i, j, IDir.IX)
                 case _:
                     return fillPeriodic(Q, i, j, IDir.IX)
 
-        set_state_into_array(Q, ileft,  j, fillX(ileft, iref_left))
+        set_state_into_array(Q, ileft, j, fillX(ileft, iref_left))
         set_state_into_array(Q, iright, j, fillX(iright, iref_right))
 
-    for (i, j) in params.range_ybound:
-        jtop: int     = j
-        jbot: int     = params.jend+j
+    for i, j in params.range_ybound:
+        jtop: int = j
+        jbot: int = params.jend + j
         jref_top: int = params.jbeg
-        jref_bot: int = params.jend-1
+        jref_bot: int = params.jend - 1
 
         def fillY(j: int, jref: int) -> State:
             match (bc_y):
@@ -83,9 +83,9 @@ def fillBoundaries(Q: Array) -> None:
                 case "BC_REFLECTING":
                     return fillReflecting(Q, i, j, i, jref, IDir.IY)
                 case "BC_PERIODIC":
-                      return fillPeriodic(Q, i, j, IDir.IY)
+                    return fillPeriodic(Q, i, j, IDir.IY)
                 case _:
                     return fillPeriodic(Q, i, j, IDir.IY)
-                
+
         set_state_into_array(Q, i, jtop, fillY(jtop, jref_top))
         set_state_into_array(Q, i, jbot, fillY(jbot, jref_bot))

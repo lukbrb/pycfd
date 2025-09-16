@@ -8,6 +8,7 @@ from src.update import update
 from src.iomanager import IOManager
 from src.boundaries import fillBoundaries
 
+
 def main() -> int:
 
     print("░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░")
@@ -49,21 +50,21 @@ def main() -> int:
     # else
 
     init_problem(Q, params.problem_name)
-    
+
     fillBoundaries(Q)
     primToCons(Q, U)
 
     dt: real_t = 0.0
     next_log: int = 0
-    while (t + params.epsilon < params.tend):
-        save_needed: bool = (t + params.epsilon > next_save)
+    while t + params.epsilon < params.tend:
+        save_needed: bool = t + params.epsilon > next_save
         dt = compute_dt(Q, t, next_log == 0)
-        if (next_log == 0):
+        if next_log == 0:
             next_log = params.log_frequency
         else:
             next_log -= 1
 
-        if (save_needed):
+        if save_needed:
             print(f" - Saving at time {t:.3f}")
             ite += 1
             io_manager.save_solution(Q, ite, t)
@@ -87,6 +88,7 @@ def main() -> int:
     print("                                                            ▀█▀ ")
 
     return 0
+
 
 if __name__ == "__main__":
     main()

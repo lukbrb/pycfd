@@ -1,10 +1,12 @@
 """Module containing all Riemann solvers."""
+
 import numpy as np
 from src.pycfd_types import real_t
 from src.states import State, primToCons
 from src.physics import speed_of_sound
 import src.params as params
 from src.varindexes import IR, IU, IV, IP, IE
+
 # IR, IU, IV, IW, IP, IE, IBX, IBY, IBZ, IPSI = VarIndex.__members__
 
 
@@ -15,6 +17,7 @@ def logMean(a: float, b: float) -> float:
     if a == b:
         return a
     return (b - a) / (np.log(b) - np.log(a))
+
 
 # def FluxKepec(qL: State, qR: State, ch: float) -> State:
 #     qAvg = (qL + qR) * 0.5
@@ -41,7 +44,7 @@ def logMean(a: float, b: float) -> float:
 #          f8 * qAvg.bz + \
 #          f9 * qAvg.psi + \
 #          qAvg.bx * (qAvg.u*qAvg.bx + qAvg.v*qAvg.by + qAvg.w*qAvg.bz) - 0.5 * qAvg.u * B2Avg - ch * qAvg.psi * qAvg.bx
-    
+
 #     return State(
 #         f1,
 #         f2,
@@ -59,15 +62,16 @@ def logMean(a: float, b: float) -> float:
 #     flux = FluxKepec(qL, qR)
 #     return flux
 
+
 def computeFlux(q: State) -> State:
     Ek: real_t = 0.5 * q[IR] * (q[IU] * q[IU] + q[IV] * q[IV])
-    E: real_t = (q[IP] / (params.gamma-1.0) + Ek)
+    E: real_t = q[IP] / (params.gamma - 1.0) + Ek
 
     fout = State()
 
-    fout[IR] = q[IR]*q[IU]
-    fout[IU] = q[IR]*q[IU]*q[IU] + q[IP]
-    fout[IV] = q[IR]*q[IU]*q[IV]
+    fout[IR] = q[IR] * q[IU]
+    fout[IU] = q[IR] * q[IU] * q[IU] + q[IP]
+    fout[IV] = q[IR] * q[IU] * q[IV]
     fout[IE] = (q[IP] + E) * q[IU]
     return fout
 
@@ -88,18 +92,19 @@ def hll(qL: State, qR: State) -> State:
     FL: State = computeFlux(qL)
     FR: State = computeFlux(qR)
     flux: State
-    if (SL >= 0.0):
+    if SL >= 0.0:
         flux = FL
     # pout = qL[IP]
-    elif (SR <= 0.0):
+    elif SR <= 0.0:
         flux = FR
     # pout = qR[IP]
     else:
         uL: State = primToCons(qL)
         uR: State = primToCons(qR)
         # pout: real_t = 0.5 * (qL[IP] + qR[IP]);
-        flux = (SR*FL - SL*FR + SL*SR*(uR-uL)) / (SR-SL)
+        flux = (SR * FL - SL * FR + SL * SR * (uR - uL)) / (SR - SL)
     return flux
+
 
 # Calling the right Riemann solver
 def riemann(qL: State, qR: State) -> State:
@@ -108,4 +113,3 @@ def riemann(qL: State, qR: State) -> State:
             flux = hll(qL, qR)
     # case "HLLC": hllc(qL, qR, flux, pout, params); break;
     return flux
-

@@ -92,8 +92,13 @@ def test_grid_conversion_helpers():
     U = make_zero_grid()
 
     # Fill Q with a simple primitive state at each domain cell
-    for (ii, jj) in params.range_dom:
-        states.set_state_into_array(Q, ii, jj, states.State(np.array([1.0, 0.5, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0])))
+    for ii, jj in params.range_dom:
+        states.set_state_into_array(
+            Q,
+            ii,
+            jj,
+            states.State(np.array([1.0, 0.5, 0.0, 0.0, 2.0, 0.0, 0.0, 0.0, 0.0])),
+        )
 
     # Convert prim->cons into U
     states.primToCons(Q, U)

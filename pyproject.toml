@@ -3,7 +3,7 @@ name = "pycfd"
 version = "0.1.0"
 description = "Bac à sable en Python pour expérimenter des schémas numériques pour la CFD. Ce code n'a pas pour but d'être utilisé pour de vraies simulations."
 readme = "README.md"
-requires-python = ">=3.13"
+requires-python = ">=3.11"
 dependencies = [
     "numpy>=2.3.0",
 ]
@@ -12,6 +12,12 @@ dependencies = [
 dev = [
     "flake8>=7.3.0",
     "mypy>=1.18.1",
+    "pre-commit>=4.3.0",
     "pytest>=8.4.2",
     "ruff>=0.13.0",
 ]
+
+[tool.mypy]
+python_version = "3.11"
+ignore_missing_imports = true
+strict = false

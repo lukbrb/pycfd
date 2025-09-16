@@ -6,11 +6,12 @@ from src.varindexes import IR, IU, IV, IW, IP, IE, IBX, IBY, IBZ, IPSI
 
 # IR, IU, IV, IW, IP, IE, IBX, IBY, IBZ, IPSI = VarIndex.__members__
 
+
 class State(np.ndarray):
     """Classe de base pour PrimState et ConsState."""
 
-    def __new__(cls, data: Union[Array, None] = None) -> 'State':
-        arr = np.zeros(params.Nfields) if data is None else np.array(data, dtype=real_t) 
+    def __new__(cls, data: Union[Array, None] = None) -> "State":
+        arr = np.zeros(params.Nfields) if data is None else np.array(data, dtype=real_t)
         if arr.shape != (params.Nfields,):
             raise ValueError(f"Expected {params.Nfields} fields, got {arr.shape}")
         # vue ndarray avec type State
@@ -20,8 +21,9 @@ class State(np.ndarray):
         # appelé à chaque fois qu’un nouvel ndarray-compat est créé
         if obj is None:
             return
-    
+
         # --- Opérations arithmétiques binaires (u + v, u - v, etc.) ---
+
     def __add__(self, other):
         result = super().__add__(other)
         return result.view(State)
@@ -132,67 +134,67 @@ def get_state_from_array(Q: Array, i: int, j: int) -> State:
     s[IP] = Q[i, j, IP]
     s[IBX] = Q[i, j, IBX]
     s[IBY] = Q[i, j, IBY]
-    s[IBZ] = Q[i, j, IBZ] 
+    s[IBZ] = Q[i, j, IBZ]
     s[IPSI] = Q[i, j, IPSI]
     return s
 
 
 def set_state_into_array(Q: Array, i: int, j: int, s: State) -> None:
-    Q[i, j, IR]   = s[IR]
-    Q[i, j, IU]   = s[IU]
-    Q[i, j, IV]   = s[IV]
-    Q[i, j, IW]   = s[IW]
-    Q[i, j, IP]   = s[IP]
-    Q[i, j, IBX]  = s[IBX]
-    Q[i, j, IBY]  = s[IBY]
-    Q[i, j, IBZ]  = s[IBZ]
+    Q[i, j, IR] = s[IR]
+    Q[i, j, IU] = s[IU]
+    Q[i, j, IV] = s[IV]
+    Q[i, j, IW] = s[IW]
+    Q[i, j, IP] = s[IP]
+    Q[i, j, IBX] = s[IBX]
+    Q[i, j, IBY] = s[IBY]
+    Q[i, j, IBZ] = s[IBZ]
     Q[i, j, IPSI] = s[IPSI]
 
 
 def cell_primToCons(q: State) -> State:
     u: State = State()
-    u[IR]   = q[IR]
-    u[IU]   = q[IR] * q[IU]
-    u[IV]   = q[IR] * q[IV]
-    u[IW]   = q[IR] * q[IW]
-    u[IBX]  = q[IBX]
-    u[IBY]  = q[IBY]
-    u[IBZ]  = q[IBZ]
+    u[IR] = q[IR]
+    u[IU] = q[IR] * q[IU]
+    u[IV] = q[IR] * q[IV]
+    u[IW] = q[IR] * q[IW]
+    u[IBX] = q[IBX]
+    u[IBY] = q[IBY]
+    u[IBZ] = q[IBZ]
     u[IPSI] = q[IPSI]
-    Ek = q[IR] * 0.5 * (q[IU]**2 + q[IV]**2 + q[IW]**2)
-    Emag = 0.5 * (q[IBX]**2 + q[IBY]**2 + q[IBZ]**2)
-    Epsi = 0.5 * q[IPSI]**2
-    u[IE] = q[IP]/(params.gamma - 1) + Ek + Emag + Epsi
+    Ek = q[IR] * 0.5 * (q[IU] ** 2 + q[IV] ** 2 + q[IW] ** 2)
+    Emag = 0.5 * (q[IBX] ** 2 + q[IBY] ** 2 + q[IBZ] ** 2)
+    Epsi = 0.5 * q[IPSI] ** 2
+    u[IE] = q[IP] / (params.gamma - 1) + Ek + Emag + Epsi
     return u
 
 
 def cell_consToPrim(u: State) -> State:
     q: State = State()
-    q[IR]   = u[IR]
-    q[IU]   = u[IU] / u[IR]
-    q[IV]   = u[IV] / u[IR]
-    q[IW]   = u[IW] / u[IR]
-    q[IBX]  = u[IBX]
-    q[IBY]  = u[IBY]
-    q[IBZ]  = u[IBZ]
+    q[IR] = u[IR]
+    q[IU] = u[IU] / u[IR]
+    q[IV] = u[IV] / u[IR]
+    q[IW] = u[IW] / u[IR]
+    q[IBX] = u[IBX]
+    q[IBY] = u[IBY]
+    q[IBZ] = u[IBZ]
     q[IPSI] = u[IPSI]
-    Ek = q[IR] * 0.5 * (q[IU]**2 + q[IV]**2 + q[IW]**2)
-    Emag = 0.5 * (q[IBX]**2 + q[IBY]**2 + q[IBZ]**2)
-    Epsi = 0.5 * q[IPSI]**2
-    q[IP] = (u[IE] - Ek - Emag - Epsi) * (params.gamma -1)
+    Ek = q[IR] * 0.5 * (q[IU] ** 2 + q[IV] ** 2 + q[IW] ** 2)
+    Emag = 0.5 * (q[IBX] ** 2 + q[IBY] ** 2 + q[IBZ] ** 2)
+    Epsi = 0.5 * q[IPSI] ** 2
+    q[IP] = (u[IE] - Ek - Emag - Epsi) * (params.gamma - 1)
     return q
 
 
 # Note : grid_** function should be vectorized with numpy array arithmetic
 def grid_consToPrim(U: Array, Q: Array) -> None:
-    for (i, j) in params.range_dom:
+    for i, j in params.range_dom:
         u_loc = get_state_from_array(U, i, j)
         q_loc = cell_consToPrim(u_loc)
         set_state_into_array(Q, i, j, q_loc)
 
 
 def grid_primToCons(Q: Array, U: Array) -> None:
-    for (i, j) in params.range_dom:
+    for i, j in params.range_dom:
         q_loc = get_state_from_array(Q, i, j)
         u_loc = cell_primToCons(q_loc)
         set_state_into_array(U, i, j, u_loc)
@@ -205,7 +207,7 @@ def primToCons(*args):
         return grid_primToCons(*args)
     else:
         raise ValueError("Incorrect number of arguments passed to the function.")
-    
+
 
 def consToPrim(*args):
     if len(args) == 1:
@@ -214,14 +216,22 @@ def consToPrim(*args):
         return grid_consToPrim(*args)
     else:
         raise ValueError("Incorrect number of arguments passed to the function.")
-    
+
 
 def swap_components(s: State, idir: IDir) -> State:
     if idir == IDir.IX:
         return s
     elif idir == IDir.IY:
-        return State(np.array([s[IR], s[IV], s[IU], s[IW], s[IP], s[IBY], s[IBX], s[IBZ], s[IPSI]]))
+        return State(
+            np.array(
+                [s[IR], s[IV], s[IU], s[IW], s[IP], s[IBY], s[IBX], s[IBZ], s[IPSI]]
+            )
+        )
     elif idir == IDir.IZ:
-        return State(np.array([s[IR], s[IW], s[IV], s[IU], s[IP], s[IBZ], s[IBY], s[IBX], s[IPSI]]))
+        return State(
+            np.array(
+                [s[IR], s[IW], s[IV], s[IU], s[IP], s[IBZ], s[IBY], s[IBX], s[IPSI]]
+            )
+        )
     else:
         raise ValueError("Chosen dir is not recognized.")

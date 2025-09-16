@@ -22,7 +22,8 @@ real_t: TypeAlias = float
 
 # VarIndex.IP._add_alias_("IE")
 
+
 class IDir(IntEnum):
     IX = 0
     IY = 1
-    IZ = 2    
+    IZ = 2
