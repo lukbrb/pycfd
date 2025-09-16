@@ -1,8 +1,8 @@
 from typing import Union
 import numpy as np
-import params
-from pycfd_types import real_t, Array, IDir
-from varindexes import IR, IU, IV, IW, IP, IE, IBX, IBY, IBZ, IPSI
+import src.params as params
+from src.pycfd_types import real_t, Array, IDir
+from src.varindexes import IR, IU, IV, IW, IP, IE, IBX, IBY, IBZ, IPSI
 
 # IR, IU, IV, IW, IP, IE, IBX, IBY, IBZ, IPSI = VarIndex.__members__
 

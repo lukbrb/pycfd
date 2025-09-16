@@ -1,7 +1,7 @@
-from pycfd_types import Array, IDir
-from states import State, get_state_from_array, set_state_into_array
-import params
-from varindexes import IU, IV, IBX, IBY
+from src.pycfd_types import Array, IDir
+from src.states import State, get_state_from_array, set_state_into_array
+import src.params as params
+from src.varindexes import IU, IV, IBX, IBY
 
 
 def fillAbsorbing(Q: Array, iref: int, jref: int, idir: IDir) -> State:

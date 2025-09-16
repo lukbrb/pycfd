@@ -1,6 +1,6 @@
 """Handle the input/oyput operations"""
 
-from pycfd_types import Array, real_t
+from src.pycfd_types import Array, real_t
 import numpy as np
 
 

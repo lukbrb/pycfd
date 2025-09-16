@@ -1,10 +1,10 @@
 """Module containing all Riemann solvers."""
 import numpy as np
-from pycfd_types import real_t
-from states import State, primToCons
-from physics import speed_of_sound
-import params
-from varindexes import IR, IU, IV, IP, IE
+from src.pycfd_types import real_t
+from src.states import State, primToCons
+from src.physics import speed_of_sound
+import src.params as params
+from src.varindexes import IR, IU, IV, IP, IE
 # IR, IU, IV, IW, IP, IE, IBX, IBY, IBZ, IPSI = VarIndex.__members__
 
 

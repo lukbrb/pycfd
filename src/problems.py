@@ -1,10 +1,10 @@
 """Module contenant les problèmes physiques à étudier."""
 from typing import Callable
 import numpy as np
-import params
-from pycfd_types import Array, real_t, IDir
+import src.params as params
+from src.pycfd_types import Array, real_t, IDir
 # from pycfd_types import VarIndex as C
-from varindexes import IR, IU, IV, IW, IP, IBX, IBY, IBZ, IPSI 
+from src.varindexes import IR, IU, IV, IW, IP, IBX, IBY, IBZ, IPSI 
 
 
 def get_pos(i, j) -> tuple[real_t, real_t]:

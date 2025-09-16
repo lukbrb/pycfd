@@ -1,10 +1,10 @@
 import numpy as np
-from pycfd_types import Array, IDir, real_t
-from states import State, get_state_from_array, swap_components, set_state_into_array, consToPrim
-from riemann import riemann
-import params
-from varindexes import IR, IU, IV, IW, IBX, IBY, IBZ, IPSI
-from boundaries import fillBoundaries
+from src.pycfd_types import Array, IDir, real_t
+from src.states import State, get_state_from_array, swap_components, set_state_into_array, consToPrim
+from src.riemann import riemann
+import src.params as params
+from src.varindexes import IR, IU, IV, IW, IBX, IBY, IBZ, IPSI
+from src.boundaries import fillBoundaries
 
 # IR, IU, IV, IW, IP, IE, IBX, IBY, IBZ, IPSI = VarIndex.__members__
 def reconstruct(Q: Array, slopes: Array, i: int, j: int, sign: real_t, idir: IDir) -> State:

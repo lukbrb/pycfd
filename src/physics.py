@@ -1,8 +1,8 @@
 """Module for physics-related calculations."""
 import numpy as np
-from states import State
-import params
-from varindexes import IP, IR
+from src.states import State
+import src.params as params
+from src.varindexes import IP, IR
 
 def speed_of_sound(q: State) -> float:
     """

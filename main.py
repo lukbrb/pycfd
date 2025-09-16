@@ -1,12 +1,12 @@
 import numpy as np
-import params
-from pycfd_types import Array, real_t
-from problems import init_problem
-from states import primToCons, consToPrim
-from timestep import compute_dt
-from update import update
-from iomanager import save_solution
-from boundaries import fillBoundaries
+from src import params
+from src.pycfd_types import Array, real_t
+from src.problems import init_problem
+from src.states import primToCons, consToPrim
+from src.timestep import compute_dt
+from src.update import update
+from src.iomanager import save_solution
+from src.boundaries import fillBoundaries
 
 def main() -> int:
 

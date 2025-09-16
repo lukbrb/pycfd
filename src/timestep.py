@@ -1,9 +1,9 @@
 import numpy as np
-from states import State, get_state_from_array
-import params
-from physics import speed_of_sound
-from pycfd_types import Array, real_t
-from varindexes import IR, IU, IV, IBX, IBY, IBZ
+from src.states import State, get_state_from_array
+import src.params as params
+from src.physics import speed_of_sound
+from src.pycfd_types import Array, real_t
+from src.varindexes import IR, IU, IV, IBX, IBY, IBZ
 # IR, IU, IV, IW, IP, IE, IBX, IBY, IBZ, IPSI = VarIndex.__members__
 
 def cell_timestep(q: State) -> real_t:
