@@ -5,7 +5,7 @@ from src.problems import init_problem
 from src.states import primToCons, consToPrim
 from src.timestep import compute_dt
 from src.update import update
-from src.iomanager import save_solution
+from src.iomanager import IOManager
 from src.boundaries import fillBoundaries
 
 def main() -> int:
@@ -31,7 +31,7 @@ def main() -> int:
     t: real_t = 0.0
     ite: int = 0
     next_save: real_t = 0.0
-    
+    io_manager = IOManager(outname="run", dirname="data")
     # // Initializing primitive variables
     # InitFunctor init(params);
     # UpdateFunctor update(params);
@@ -49,7 +49,6 @@ def main() -> int:
     # else
 
     init_problem(Q, params.problem_name)
-    print(Q)
     
     fillBoundaries(Q)
     primToCons(Q, U)
@@ -67,18 +66,18 @@ def main() -> int:
         if (save_needed):
             print(f" - Saving at time {t:.3f}")
             ite += 1
-            save_solution(Q, ite, t)
+            io_manager.save_solution(Q, ite, t)
             next_save += params.save_freq
 
         update(Q, U, dt)
         consToPrim(U, Q)
         # checkNegatives(Q, params)
 
-    t += dt
+        t += dt
 
     print(f"Time at end is {t:.3f}")
     ite += 1
-    save_solution(Q, ite, t)
+    io_manager.save_solution(Q, ite, t)
 
     print("    █     ▀██  ▀██         ▀██                              ▄█▄ ")
     print("   ███     ██   ██       ▄▄ ██    ▄▄▄   ▄▄ ▄▄▄     ▄▄▄▄     ███ ")

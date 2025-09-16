@@ -28,8 +28,7 @@ def compute_dt(Q: Array, t: real_t, verbose: bool) -> real_t:
     all_inv_dt = 0.0
     for (i, j) in params.range_dom:
         q_loc = get_state_from_array(Q, i, j)
-        print(q_loc)
         all_inv_dt = max(cell_timestep(q_loc), all_inv_dt)
     if verbose: 
-      print(f"Computing dts at ({t=}): dt_hyp={params.CFL/all_inv_dt}")
+      print(f"Computing dts at ({t=:.2f}): dt_hyp={params.CFL/all_inv_dt}")
     return params.CFL / np.max(all_inv_dt)
