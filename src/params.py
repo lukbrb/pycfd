@@ -11,7 +11,7 @@ Nfields = 9 if MHD else 5
 
 # Mesh
 Nx = 128
-Ny = 2
+Ny = 1
 Nghosts = 2
 Ntx = Nx + 2 * Nghosts
 Nty = Ny + 2 * Nghosts
@@ -43,8 +43,8 @@ boundary_y = "BC_PERIODIC"
 # Run
 tend = 0.2
 # Update - Hydro
-CFL = 0.1
-reconstruction = "PLM"
+CFL = 0.3
+reconstruction = "PCM"
 time_stepping = "euler"
 riemann_solver = "HLL"
 # Values

@@ -34,7 +34,7 @@ def init_sod_x(Q: Array, i: int, j: int) -> None:
     else:
         Q[i, j, IR] = 0.125
         Q[i, j, IP] = 0.1
-        Q[i, j, IU] = 5
+        Q[i, j, IU] = 0.0
 
 
 def init_orszag_tang(Q: Array, i: int, j: int) -> None:
