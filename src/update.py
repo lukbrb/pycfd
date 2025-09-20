@@ -24,6 +24,7 @@ def reconstruct(
         case "PLM":
             res = q + slope * sign * 0.5  # Piecewise Linear
         case "PCM_WB":  # Piecewise constant + Well-balancing
+            raise NotImplementedError("Well Balanced Schemes are not available yet.")
             res[IR] = q[IR]
             res[IU] = q[IU]
             res[IV] = q[IV]

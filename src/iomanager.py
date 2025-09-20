@@ -1,6 +1,5 @@
-import os
 from pathlib import Path
-from typing import Dict, List, Optional
+from typing import Dict
 import numpy as np
 import h5py
 import src.params as params  # Import direct des paramètres
@@ -23,11 +22,11 @@ class IOManager:
         self.iend = params.iend
         self.jbeg = params.jbeg
         self.jend = params.jend
-        self.dx = getattr(params, 'dx', 1.0 / self.Nx)
-        self.dy = getattr(params, 'dy', 1.0 / self.Ny)
-        self.xmin = getattr(params, 'xmin', 0.0)
-        self.ymin = getattr(params, 'ymin', 0.0)
-        self.MHD = getattr(params, 'MHD', False)
+        self.dx = params.dx
+        self.dy = params.dy
+        self.xmin = params.xmin
+        self.ymin = params.ymin
+        self.MHD = params.MHD
         self.write_ghost_cells = getattr(params, 'write_ghost_cells', False)
 
     def setup_dirdata(self) -> None:
@@ -88,7 +87,7 @@ class IOManager:
             f.attrs["iend"] = self.iend
             f.attrs["jbeg"] = self.jbeg
             f.attrs["jend"] = self.jend
-            f.attrs["problem"] = getattr(params, 'problem_name', 'unknown')
+            f.attrs["problem"] = params.problem_name
             f.attrs["dx"] = self.dx
             f.attrs["dy"] = self.dy
             f.attrs["xmin"] = self.xmin

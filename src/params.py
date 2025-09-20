@@ -10,8 +10,8 @@ gamma = 5 / 3
 Nfields = 9 if MHD else 5
 
 # Mesh
-Nx = 8
-Ny = 1
+Nx = 128
+Ny = 2
 Nghosts = 2
 Ntx = Nx + 2 * Nghosts
 Nty = Ny + 2 * Nghosts
@@ -37,19 +37,19 @@ dx = (xmax - xmin) / Nx
 dy = (ymax - ymin) / Ny
 
 # Boundaries
-boundary_x = "BC_PERIODIC"
+boundary_x = "BC_ABSORBING"
 boundary_y = "BC_PERIODIC"
 
 # Run
-tend = 2.0
+tend = 0.2
 # Update - Hydro
 CFL = 0.1
 reconstruction = "PLM"
-time_stepping = "RK2"
+time_stepping = "euler"
 riemann_solver = "HLL"
 # Values
 epsilon = 1e-6
 smallr = 1e-10
 # Output
-log_frequency = 1
-save_freq = 10
+log_frequency = 100
+save_freq = 0.01
