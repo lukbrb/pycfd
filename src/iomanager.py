@@ -2,7 +2,7 @@ from pathlib import Path
 from typing import Dict
 import numpy as np
 import h5py
-import src.params as params  # Import direct des paramètres
+import src.params as params 
 from src.varindexes import IR, IU, IV, IW, IP, IBX, IBY, IBZ, IPSI
 
 
@@ -149,70 +149,70 @@ class IOManager:
 
         with open(xmf_filename, "w") as xdmf_fd:
             xdmf_fd.write(f'''<?xml version="1.0" ?>
-<!DOCTYPE Xdmf SYSTEM "Xdmf.dtd" [
-<!ENTITY file "{h5_basename}:">
-<!ENTITY fdim "{fNy} {fNx}">
-<!ENTITY gdim "{gNy} {gNx}">
-<!ENTITY GridEntity '
-<Topology TopologyType="2DSMesh" Dimensions="&gdim;"/>
-<Geometry GeometryType="X_Y">
-  <DataItem Dimensions="&gdim;" NumberType="Float" Precision="8" Format="HDF">&file;/x</DataItem>
-  <DataItem Dimensions="&gdim;" NumberType="Float" Precision="8" Format="HDF">&file;/y</DataItem>
-</Geometry>'>
-]>
-<Xdmf Version="3.0">
-<Domain>
-  <Grid Name="TimeSeries" GridType="Collection" CollectionType="Temporal">
-    <Grid Name="{iteration_str}" GridType="Uniform">
-      <Time Value="{t}" />
-      &GridEntity;
-''')
+                <!DOCTYPE Xdmf SYSTEM "Xdmf.dtd" [
+                <!ENTITY file "{h5_basename}:">
+                <!ENTITY fdim "{fNy} {fNx}">
+                <!ENTITY gdim "{gNy} {gNx}">
+                <!ENTITY GridEntity '
+                <Topology TopologyType="2DSMesh" Dimensions="&gdim;"/>
+                <Geometry GeometryType="X_Y">
+                <DataItem Dimensions="&gdim;" NumberType="Float" Precision="8" Format="HDF">&file;/x</DataItem>
+                <DataItem Dimensions="&gdim;" NumberType="Float" Precision="8" Format="HDF">&file;/y</DataItem>
+                </Geometry>'>
+                ]>
+                <Xdmf Version="3.0">
+                <Domain>
+                <Grid Name="TimeSeries" GridType="Collection" CollectionType="Temporal">
+                    <Grid Name="{iteration_str}" GridType="Uniform">
+                    <Time Value="{t}" />
+                    &GridEntity;
+                ''')
 
             # Champs scalaires
             for field in ["rho", "prs"]:
                 xdmf_fd.write(f'''
-      <Attribute Name="{field}" AttributeType="Scalar" Center="Cell">
-        <DataItem Dimensions="&fdim;" NumberType="Float" Precision="8" Format="HDF">&file;/{field}</DataItem>
-      </Attribute>
-''')
+                    <Attribute Name="{field}" AttributeType="Scalar" Center="Cell">
+                        <DataItem Dimensions="&fdim;" NumberType="Float" Precision="8" Format="HDF">&file;/{field}</DataItem>
+                    </Attribute>
+                ''')
 
             # Champs vectoriels
             if not self.MHD:
                 xdmf_fd.write('''
-      <Attribute Name="velocity" AttributeType="Vector" Center="Cell">
-        <DataItem Dimensions="&fdim; 2" ItemType="Function" Function="JOIN($0, $1)">
-          <DataItem Dimensions="&fdim;" NumberType="Float" Precision="8" Format="HDF">&file;/u</DataItem>
-          <DataItem Dimensions="&fdim;" NumberType="Float" Precision="8" Format="HDF">&file;/v</DataItem>
-        </DataItem>
-      </Attribute>
-''')
+                    <Attribute Name="velocity" AttributeType="Vector" Center="Cell">
+                        <DataItem Dimensions="&fdim; 2" ItemType="Function" Function="JOIN($0, $1)">
+                        <DataItem Dimensions="&fdim;" NumberType="Float" Precision="8" Format="HDF">&file;/u</DataItem>
+                        <DataItem Dimensions="&fdim;" NumberType="Float" Precision="8" Format="HDF">&file;/v</DataItem>
+                        </DataItem>
+                    </Attribute>
+                ''')
             else:
                 xdmf_fd.write('''
-      <Attribute Name="velocity" AttributeType="Vector" Center="Cell">
-        <DataItem Dimensions="&fdim; 3" ItemType="Function" Function="JOIN($0, $1, $2)">
-          <DataItem Dimensions="&fdim;" NumberType="Float" Precision="8" Format="HDF">&file;/u</DataItem>
-          <DataItem Dimensions="&fdim;" NumberType="Float" Precision="8" Format="HDF">&file;/v</DataItem>
-          <DataItem Dimensions="&fdim;" NumberType="Float" Precision="8" Format="HDF">&file;/w</DataItem>
-        </DataItem>
-      </Attribute>
-      <Attribute Name="magnetic" AttributeType="Vector" Center="Cell">
-        <DataItem Dimensions="&fdim; 3" ItemType="Function" Function="JOIN($0, $1, $2)">
-          <DataItem Dimensions="&fdim;" NumberType="Float" Precision="8" Format="HDF">&file;/bx</DataItem>
-          <DataItem Dimensions="&fdim;" NumberType="Float" Precision="8" Format="HDF">&file;/by</DataItem>
-          <DataItem Dimensions="&fdim;" NumberType="Float" Precision="8" Format="HDF">&file;/bz</DataItem>
-        </DataItem>
-      </Attribute>
-      <Attribute Name="psi" AttributeType="Scalar" Center="Cell">
-        <DataItem Dimensions="&fdim;" NumberType="Float" Precision="8" Format="HDF">&file;/psi</DataItem>
-      </Attribute>
-''')
+                    <Attribute Name="velocity" AttributeType="Vector" Center="Cell">
+                        <DataItem Dimensions="&fdim; 3" ItemType="Function" Function="JOIN($0, $1, $2)">
+                        <DataItem Dimensions="&fdim;" NumberType="Float" Precision="8" Format="HDF">&file;/u</DataItem>
+                        <DataItem Dimensions="&fdim;" NumberType="Float" Precision="8" Format="HDF">&file;/v</DataItem>
+                        <DataItem Dimensions="&fdim;" NumberType="Float" Precision="8" Format="HDF">&file;/w</DataItem>
+                        </DataItem>
+                    </Attribute>
+                    <Attribute Name="magnetic" AttributeType="Vector" Center="Cell">
+                        <DataItem Dimensions="&fdim; 3" ItemType="Function" Function="JOIN($0, $1, $2)">
+                        <DataItem Dimensions="&fdim;" NumberType="Float" Precision="8" Format="HDF">&file;/bx</DataItem>
+                        <DataItem Dimensions="&fdim;" NumberType="Float" Precision="8" Format="HDF">&file;/by</DataItem>
+                        <DataItem Dimensions="&fdim;" NumberType="Float" Precision="8" Format="HDF">&file;/bz</DataItem>
+                        </DataItem>
+                    </Attribute>
+                    <Attribute Name="psi" AttributeType="Scalar" Center="Cell">
+                        <DataItem Dimensions="&fdim;" NumberType="Float" Precision="8" Format="HDF">&file;/psi</DataItem>
+                    </Attribute>
+                ''')
 
             xdmf_fd.write('''
-      </Grid>
-    </Grid>
-  </Domain>
-</Xdmf>
-''')
+                </Grid>
+                </Grid>
+            </Domain>
+            </Xdmf>
+            ''')
 
     def _save_solution_unique(self, Q: np.ndarray, iteration: int, t: float) -> None:
         """Sauvegarde dans un seul fichier HDF5 (groupes par itération)."""
