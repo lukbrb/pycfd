@@ -1,0 +1,10 @@
+IR: int
+IU: int
+IV: int
+IW: int
+IP: int
+IE: int
+IBX: int
+IBY: int
+IBZ: int
+IPSI: int
