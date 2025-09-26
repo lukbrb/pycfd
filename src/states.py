@@ -200,7 +200,7 @@ def grid_primToCons(Q: Array, U: Array) -> None:
         set_state_into_array(U, i, j, u_loc)
 
 
-def primToCons(*args):
+def primToCons(*args: tuple[Array]|tuple[State]) -> None | State:
     if len(args) == 1:
         return cell_primToCons(*args)
     elif len(args) == 2:
@@ -209,7 +209,7 @@ def primToCons(*args):
         raise ValueError("Incorrect number of arguments passed to the function.")
 
 
-def consToPrim(*args):
+def consToPrim(*args: tuple[Array]|tuple[State]) -> None | State:
     if len(args) == 1:
         return cell_consToPrim(*args)
     elif len(args) == 2:
