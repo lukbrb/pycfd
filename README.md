@@ -10,7 +10,7 @@ Ce code n'a pas pour but d'être utilisé pour de vraies simulations.
 ## Installation
 
 Commencez par cloner le répertoire 
-```console
+```bash
 git clone https://github.com/lukbrb/pycfd.git && cd pycfd
 ````
 
@@ -18,7 +18,7 @@ git clone https://github.com/lukbrb/pycfd.git && cd pycfd
 
 Le plus simple, et l'option recommandée, est d'utiliser le gestionnaire de paquet et projet [uv](https://docs.astral.sh/uv/guides/install-python/). Une fois installé, il suffira de faire
 
-```console
+```bash
 uv run main.py
 ```
 
@@ -27,3 +27,11 @@ afin de lancer une simulation.
 > [!IMPORTANT]  
 > Avant de lancer une simulation, assurez vous de choisir les paramètres de votre simulation.  
 > Pour l'instant, les paramètres sont modifiables dans le fichier `src/params`.  
+
+Si vous n'utilisez pas pas `uv`, créez-vous un environnent virtuel puis installez les dépendences :
+
+```bash
+python -m venv pycfd-env
+source pycfd-env/bin/activate
+pip install .
+````
