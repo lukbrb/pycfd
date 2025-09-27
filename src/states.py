@@ -1,4 +1,5 @@
-from typing import Union
+from typing import Union, Optional
+from functools import singledispatch
 import numpy as np
 import src.params as params
 from src.pycfd_types import real_t, Array, IDir
@@ -200,22 +201,40 @@ def grid_primToCons(Q: Array, U: Array) -> None:
         set_state_into_array(U, i, j, u_loc)
 
 
-def primToCons(*args: tuple[Array]|tuple[State]) -> None | State:
-    if len(args) == 1:
-        return cell_primToCons(*args)
-    elif len(args) == 2:
-        return grid_primToCons(*args)
-    else:
-        raise ValueError("Incorrect number of arguments passed to the function.")
+@singledispatch
+def primToCons(arg1: State | Array, arg2: Optional[Array] = None) -> Union[State, None]:
+    """Fonction générique pour primToCons."""
+    raise NotImplementedError("Type non supporté.")
 
 
-def consToPrim(*args: tuple[Array]|tuple[State]) -> None | State:
-    if len(args) == 1:
-        return cell_consToPrim(*args)
-    elif len(args) == 2:
-        return grid_consToPrim(*args)
-    else:
-        raise ValueError("Incorrect number of arguments passed to the function.")
+@primToCons.register
+def _(q: State, _: None = None) -> State:
+    """Conversion cellule->cellule (State -> State)."""
+    return cell_primToCons(q)
+
+
+@primToCons.register
+def _(Q: Array, U: Array) -> None:
+    """Conversion grille->grille (Array -> Array)."""
+    grid_primToCons(Q, U)
+
+
+@singledispatch
+def consToPrim(arg1: State | Array, arg2: Optional[Array] = None) -> Union[State, None]:
+    """Fonction générique pour primToCons."""
+    raise NotImplementedError("Type non supporté.")
+
+
+@consToPrim.register
+def _(q: State, _: None = None) -> State:
+    """Conversion cellule->cellule (State -> State)."""
+    return cell_consToPrim(q)
+
+
+@consToPrim.register
+def _(Q: Array, U: Array) -> None:
+    """Conversion grille->grille (Array -> Array)."""
+    grid_consToPrim(Q, U)
 
 
 def swap_components(s: State, idir: IDir) -> State:

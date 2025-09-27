@@ -75,7 +75,7 @@ def test_fill_periodic_y():
     set_state_into_array(Q, params.ibeg, bottom_cell_index, state_bottom)
 
     # ghost cell below (j == params.jbeg - 1) should map to top when periodic
-    j_ghost = params.jbeg - 1
+    j_ghost = params.jend
     q = boundaries.fillPeriodic(Q, params.ibeg, j_ghost, IDir.IY)
     assert np.allclose(q, state_bottom)
 
